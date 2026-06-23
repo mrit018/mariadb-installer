@@ -43,6 +43,8 @@ git push origin v1.0.0
 จากนั้นสร้าง Release ใน GitHub แล้วแนบ `mariadb-installer.exe` เป็น asset
 หรือใช้ `gh release create v1.0.0 mariadb-installer.exe --title v1.0.0`
 
+ใช้ [RELEASE_TEMPLATE.md](RELEASE_TEMPLATE.md) เป็นโครงสำหรับเขียน release note เองได้
+
 เมื่อ release ถูก publish แล้ว ผู้ใช้ดาวน์โหลดได้จาก URL ประมาณนี้:
 
 ```text
@@ -53,6 +55,7 @@ https://github.com/mrit018/mariadb-installer/releases/download/v1.0.0/mariadb-in
 
 repo นี้มี GitHub Actions workflow ที่ build Windows binary และแนบไฟล์ `.exe`
 เข้ากับ GitHub Release อัตโนมัติเมื่อ push tag ที่ขึ้นต้นด้วย `v`
+และจะสร้าง release note แบบอัตโนมัติ พร้อมตั้ง release นั้นเป็น latest
 
 ตัวอย่าง:
 

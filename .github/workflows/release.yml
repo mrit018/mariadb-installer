@@ -32,3 +32,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/mariadb-installer.exe
+          generate_release_notes: true
+          make_latest: true
