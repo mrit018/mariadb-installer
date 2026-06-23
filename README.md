@@ -25,8 +25,43 @@ go build -mod=vendor -o mariadb-installer.exe .
 **บน Linux/macOS:**
 
 ```bash
-go build -mod=vendor -o mariadb-installer .
+go build -mod=vendor -o mariadb-installer . 
 ```
+
+## Release
+
+### แบบ manual
+
+ถ้าต้องการปล่อยไฟล์ `mariadb-installer.exe` เอง:
+
+```powershell
+go build -mod=vendor -o mariadb-installer.exe .
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+จากนั้นสร้าง Release ใน GitHub แล้วแนบ `mariadb-installer.exe` เป็น asset
+หรือใช้ `gh release create v1.0.0 mariadb-installer.exe --title v1.0.0`
+
+เมื่อ release ถูก publish แล้ว ผู้ใช้ดาวน์โหลดได้จาก URL ประมาณนี้:
+
+```text
+https://github.com/mrit018/mariadb-installer/releases/download/v1.0.0/mariadb-installer.exe
+```
+
+### แบบอัตโนมัติ
+
+repo นี้มี GitHub Actions workflow ที่ build Windows binary และแนบไฟล์ `.exe`
+เข้ากับ GitHub Release อัตโนมัติเมื่อ push tag ที่ขึ้นต้นด้วย `v`
+
+ตัวอย่าง:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+workflow อยู่ที่ `.github/workflows/release.yml`
 
 ## ดูตัวอย่างการสั่งงานทั้งหมด
 
