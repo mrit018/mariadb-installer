@@ -8,8 +8,8 @@ import (
 )
 
 // WriteFile เขียนไฟล์บนเครื่องปลายทาง โดยส่งเนื้อหาผ่าน stdin ของคำสั่ง `cat > path`
+// ถ้า login ด้วย user ที่ไม่ใช่ root จะ prefix ด้วย sudo ให้อัตโนมัติ
 // แทนการใช้ SFTP (ลด dependency ลงหนึ่งตัว) วิธีนี้ใช้ได้กับทุก path ที่ user ปัจจุบันเขียนถึงได้
-// (เมื่อ login เป็น root จะเขียนไฟล์ระบบ เช่น /etc/my.cnf ได้โดยตรง)
 func (c *Client) WriteFile(path, content string, mode os.FileMode) error {
 	session, err := c.client.NewSession()
 	if err != nil {
@@ -17,9 +17,19 @@ func (c *Client) WriteFile(path, content string, mode os.FileMode) error {
 	}
 	defer session.Close()
 
-	session.Stdin = bytes.NewReader([]byte(content))
-
 	cmd := fmt.Sprintf("cat > %s && chmod %o %s", shellQuote(path), mode.Perm(), shellQuote(path))
+	if c.cfg.User != "root" {
+		cmd = sudoShellCommand(cmd, c.cfg.SudoPassword != "")
+		if c.cfg.SudoPassword != "" {
+			payload := append([]byte(c.cfg.SudoPassword+"\n"), []byte(content)...)
+			session.Stdin = bytes.NewReader(payload)
+		} else {
+			session.Stdin = bytes.NewReader([]byte(content))
+		}
+	} else {
+		session.Stdin = bytes.NewReader([]byte(content))
+	}
+
 	out, err := session.CombinedOutput(cmd)
 	if err != nil {
 		return fmt.Errorf("เขียนไฟล์ %s บน %s ไม่สำเร็จ: %w\nผลลัพธ์: %s", path, c.cfg.Host, err, trimOutput(out))

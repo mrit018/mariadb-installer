@@ -17,6 +17,9 @@
 //	# ติดตั้งจริงด้วย password
 //	mariadb-installer.exe --apply --host=10.0.0.10 --user=root --password=secret
 //
+//	# ล็อกอินด้วย user อื่นแล้วใช้ sudo ต่อ (ถ้า sudo ต้องใช้ password)
+//	mariadb-installer.exe --apply --host=10.0.0.10 --user=mrit --password=ssh-pass --sudo-password=sudo-pass
+//
 // วิธีใช้ (หลายเครื่อง / Galera cluster) ผ่านไฟล์ config:
 //
 //	mariadb-installer.exe --apply --config=hosts.json
@@ -25,16 +28,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"strings"
-
-	"mariadb-installer/internal/examples"
 	"mariadb-installer/internal/hostsconfig"
-	"mariadb-installer/internal/osdetect"
-	"mariadb-installer/internal/runner"
 	"mariadb-installer/internal/sshclient"
-	"mariadb-installer/internal/steps"
-	"mariadb-installer/internal/tuning"
+	"os"
 )
 
 func main() {
@@ -51,75 +47,64 @@ func main() {
 		user     = flag.String("user", "root", "ผู้ใช้ที่ใช้ SSH login")
 		keyPath  = flag.String("key", "", "path ไปยัง private key file (.pem) สำหรับ SSH auth")
 		password = flag.String("password", "", "password สำหรับ SSH auth (ใช้แทน --key ก็ได้)")
+		sudoPass = flag.String("sudo-password", "", "password สำหรับ sudo เมื่อ login ด้วย user ที่ไม่ใช่ root")
 
 		// โหมดหลายเครื่อง
 		configPath = flag.String("config", "", "path ไปยังไฟล์ config JSON สำหรับติดตั้งหลายเครื่อง/Galera cluster")
+
+		// โหมด GUI
+		gui        = flag.Bool("gui", false, "เปิดหน้า GUI local ใน browser สำหรับกรอกค่าได้ง่ายขึ้น")
+		guiPort    = flag.Int("gui-port", 8079, "port สำหรับ GUI local")
+		desktopGUI = flag.Bool("desktop-gui", false, "เปิด native Windows desktop GUI")
 
 		// โหมดแสดงตัวอย่าง (ไม่เชื่อมต่อ SSH ใด ๆ แค่พิมพ์ตัวอย่างคำสั่งออกมาดู)
 		showExamples = flag.Bool("examples", false,
 			"แสดงตัวอย่างการสั่งงานทุกสถานการณ์ (เครื่องเดียว, Galera cluster, troubleshooting) แล้วออกจากโปรแกรม")
 		examplesCategory = flag.String("examples-category", "",
-			fmt.Sprintf("กรองตัวอย่างเฉพาะหมวด (ใช้คู่กับ --examples) เลือกได้: %s", strings.Join(examples.AvailableCategories(), ", ")))
+			fmt.Sprintf("กรองตัวอย่างเฉพาะหมวด (ใช้คู่กับ --examples)"))
 	)
 	flag.Parse()
 
-	if *showExamples || *examplesCategory != "" {
-		exList, ok := examples.Filter(*examplesCategory)
-		if !ok {
-			fmt.Fprintln(os.Stderr, examples.ErrUnknownCategoryHint(*examplesCategory))
+	if *desktopGUI {
+		exe, err := os.Executable()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "[FATAL] %v\n", err)
 			os.Exit(1)
 		}
-		examples.Print(exList)
+		if err := startDesktopGUI(exe); err != nil {
+			fmt.Fprintf(os.Stderr, "[FATAL] %v\n", err)
+			os.Exit(1)
+		}
 		return
 	}
 
-	if !*dryRun && !*apply {
-		fmt.Fprintln(os.Stderr, "ต้องระบุ --dry-run (ดูแผนงานก่อน) หรือ --apply (ติดตั้งจริง) อย่างใดอย่างหนึ่ง")
-		fmt.Fprintln(os.Stderr, "หรือดูตัวอย่างการสั่งงานทั้งหมดด้วย --examples")
-		flag.Usage()
-		os.Exit(1)
-	}
-	if *dryRun && *apply {
-		fmt.Fprintln(os.Stderr, "ระบุได้แค่ --dry-run หรือ --apply อย่างเดียว ไม่ใช่ทั้งสองอย่าง")
-		os.Exit(1)
+	if *gui {
+		if err := startGUI(*guiPort); err != nil {
+			fmt.Fprintf(os.Stderr, "[FATAL] %v\n", err)
+			os.Exit(1)
+		}
+		return
 	}
 
-	targets, clusterName, err := resolveTargets(*configPath, *host, *sshPort, *user, *keyPath, *password)
+	err := runApp(appOptions{
+		DryRun:           *dryRun,
+		Apply:            *apply,
+		Verbose:          *verbose,
+		Charset:          *charset,
+		SkipCleanup:      *skipCleanup,
+		Host:             *host,
+		SSHPort:          *sshPort,
+		User:             *user,
+		KeyPath:          *keyPath,
+		Password:         *password,
+		SudoPassword:     *sudoPass,
+		ConfigPath:       *configPath,
+		ShowExamples:     *showExamples,
+		ExamplesCategory: *examplesCategory,
+	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[FATAL] %v\n", err)
 		os.Exit(1)
-	}
-
-	if *dryRun {
-		fmt.Println("=== DRY-RUN MODE: จะไม่มีการเชื่อมต่อ/แก้ไขเครื่องปลายทางจริง มีแต่การแสดงแผนงาน ===")
-	} else {
-		fmt.Println("=== APPLY MODE: กำลังติดตั้งจริงผ่าน SSH ===")
-	}
-
-	isCluster := clusterName != "" && len(targets) > 1
-	if isCluster {
-		fmt.Printf("โหมด Galera cluster: %q จำนวน %d node\n", clusterName, len(targets))
-	}
-
-	allAddresses := make([]string, len(targets))
-	for i, t := range targets {
-		allAddresses[i] = t.cfg.Host
-	}
-
-	// ติดตั้งทุกเครื่องตามลำดับ (ไม่ทำพร้อมกัน เพื่อให้ log อ่านง่ายและไม่ชนกันตอน clone SST จาก node แรก)
-	for i, t := range targets {
-		if err := runOnHost(t, *dryRun, *verbose, *charset, *skipCleanup, isCluster, clusterName, allAddresses, i == 0); err != nil {
-			fmt.Fprintf(os.Stderr, "\n[FATAL] เครื่อง %s ล้มเหลว: %v\n", t.cfg.Host, err)
-			os.Exit(1)
-		}
-	}
-
-	fmt.Println("\n=== เสร็จสมบูรณ์ทุกเครื่อง ===")
-	if *dryRun {
-		fmt.Println("นี่คือ dry-run เท่านั้น รันด้วย --apply เพื่อติดตั้งจริง")
-	} else {
-		fmt.Println("ตรวจสอบสถานะแต่ละเครื่องด้วย: ssh <host> systemctl status mariadb")
-		fmt.Println("รัน mysql_secure_installation บนแต่ละเครื่องเพื่อตั้งรหัสผ่าน root")
 	}
 }
 
@@ -130,7 +115,7 @@ type target struct {
 }
 
 // resolveTargets อ่านค่าจาก flag เครื่องเดียว หรือไฟล์ config หลายเครื่อง (--config มาก่อนถ้าระบุทั้งคู่)
-func resolveTargets(configPath, host string, sshPort int, user, keyPath, password string) ([]target, string, error) {
+func resolveTargets(configPath, host string, sshPort int, user, keyPath, password, sudoPassword string) ([]target, string, error) {
 	if configPath != "" {
 		cfg, err := hostsconfig.Load(configPath)
 		if err != nil {
@@ -154,6 +139,10 @@ func resolveTargets(configPath, host string, sshPort int, user, keyPath, passwor
 				sc.AuthMethod = sshclient.AuthPassword
 				sc.Password = cfg.Password
 			}
+			sc.SudoPassword = cfg.SudoPassword
+			if sc.User != "root" && sc.SudoPassword == "" {
+				sc.SudoPassword = sc.Password
+			}
 			targets[i] = target{name: h.Name, cfg: sc}
 		}
 		return targets, cfg.ClusterName, nil
@@ -174,130 +163,9 @@ func resolveTargets(configPath, host string, sshPort int, user, keyPath, passwor
 	default:
 		return nil, "", fmt.Errorf("ต้องระบุ --key หรือ --password อย่างใดอย่างหนึ่งสำหรับ SSH auth")
 	}
+	sc.SudoPassword = sudoPassword
+	if sc.User != "root" && sc.SudoPassword == "" {
+		sc.SudoPassword = sc.Password
+	}
 	return []target{{name: host, cfg: sc}}, "", nil
-}
-
-// runOnHost รัน pipeline การติดตั้งทั้งหมดบนเครื่องปลายทางหนึ่งเครื่อง
-func runOnHost(
-	t target,
-	dryRun, verbose bool,
-	charset string,
-	skipCleanup bool,
-	isCluster bool,
-	clusterName string,
-	allAddresses []string,
-	isFirstNode bool,
-) error {
-	hostLabel := fmt.Sprintf("%s@%s", t.cfg.User, t.cfg.Host)
-
-	var sshConn *sshclient.Client
-	if !dryRun {
-		conn, err := sshclient.Dial(t.cfg)
-		if err != nil {
-			return err
-		}
-		defer conn.Close()
-		if err := conn.Ping(); err != nil {
-			return fmt.Errorf("เชื่อมต่อ SSH สำเร็จแต่รันคำสั่งทดสอบไม่ผ่าน: %w", err)
-		}
-		sshConn = conn
-		fmt.Printf("เชื่อมต่อ %s สำเร็จ\n", hostLabel)
-	}
-
-	r := runner.New(dryRun, verbose, sshConn, hostLabel)
-
-	if err := steps.EnsureRoot(r); err != nil {
-		return err
-	}
-
-	info, err := osdetect.Detect(r)
-	if err != nil {
-		return fmt.Errorf("ตรวจ OS ไม่สำเร็จ: %w", err)
-	}
-	fmt.Printf("[%s] ตรวจพบ OS: %s\n", hostLabel, info)
-
-	if info.Family == osdetect.FamilyUnknown {
-		return fmt.Errorf("ไม่รองรับ OS นี้ (รองรับเฉพาะ RHEL-family และ Debian-family)")
-	}
-
-	tval, err := tuning.Detect(r)
-	if err != nil {
-		return fmt.Errorf("คำนวณค่า tuning จาก RAM ไม่สำเร็จ: %w", err)
-	}
-	fmt.Printf("[%s] ค่า tuning ที่คำนวณได้: %s\n", hostLabel, tval)
-
-	pipeline := buildPipeline(r, info, tval, charset, skipCleanup)
-
-	if isCluster {
-		pipeline = append(pipeline, pipelineStep{"galera-config", func() error {
-			return steps.WriteGaleraConfig(r, steps.GaleraOptions{
-				ClusterName:  clusterName,
-				NodeName:     t.name,
-				NodeAddress:  t.cfg.Host,
-				AllAddresses: allAddresses,
-			})
-		}})
-	}
-
-	for _, step := range pipeline {
-		if err := step.fn(); err != nil {
-			return fmt.Errorf("ขั้นตอน %q ล้มเหลว: %w", step.name, err)
-		}
-	}
-
-	if isCluster && isFirstNode {
-		fmt.Printf("[%s] เป็น node แรกของคลัสเตอร์ ต้อง bootstrap ก่อน node อื่น\n", hostLabel)
-		if err := steps.BootstrapFirstNode(r); err != nil {
-			return err
-		}
-	} else {
-		if err := steps.StartService(r); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// pipelineStep คือหนึ่งขั้นตอนในแผนการติดตั้ง ตั้งชื่อไว้สำหรับ error message ที่อ่านง่าย
-type pipelineStep struct {
-	name string
-	fn   func() error
-}
-
-// buildPipeline ประกอบลำดับขั้นตอนการติดตั้งทั้งหมด
-// precheck service -> cleanup -> firewall -> selinux -> sysctl tuning -> repo -> my.cnf -> install
-// (galera config และ start service ถูกเพิ่มต่อจาก pipeline นี้แยกใน runOnHost
-// เพราะ node แรกของคลัสเตอร์ต้อง bootstrap แทนการ start แบบปกติ)
-func buildPipeline(
-	r *runner.Runner,
-	info *osdetect.Info,
-	tval *tuning.Values,
-	charset string,
-	skipCleanup bool,
-) []pipelineStep {
-	var pipeline []pipelineStep
-
-	pipeline = append(pipeline, pipelineStep{"precheck-services", func() error {
-		return steps.CheckExistingDatabaseServices(r)
-	}})
-
-	if !skipCleanup {
-		pipeline = append(pipeline, pipelineStep{"cleanup", func() error { return steps.CleanupOld(r, info) }})
-	}
-
-	pipeline = append(pipeline,
-		pipelineStep{"firewall", func() error { return steps.ConfigureFirewall(r, info) }},
-		pipelineStep{"selinux", func() error { return steps.DisableSELinux(r, info) }},
-		pipelineStep{"sysctl", func() error { return steps.TuneKernel(r, info, tval) }},
-		pipelineStep{"repo", func() error { return steps.AddMariaDBRepo(r, info) }},
-		pipelineStep{"my.cnf", func() error {
-			opt := steps.DefaultMyCnfOptions()
-			opt.CharacterSet = charset
-			return steps.WriteMyCnf(r, tval, opt)
-		}},
-		pipelineStep{"install", func() error { return steps.InstallPackages(r, info) }},
-	)
-
-	return pipeline
 }

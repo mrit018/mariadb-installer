@@ -6,16 +6,15 @@ func troubleshootExamples() []Example {
 	return []Example{
 		{
 			Category: CategoryTroubleshoot,
-			Title:    `Error: "ต้อง SSH login เป็น root บน ... (ตรวจพบว่า login เป็น ...)"`,
-			Description: "เกิดเมื่อ user ที่ใช้ SSH ไม่ใช่ root (เครื่องปลายทางมักให้ login เป็น " +
-				"user อื่นแล้วค่อย sudo) โปรแกรมนี้รองรับเฉพาะ login เป็น root ตรง ๆ ยังไม่รองรับ sudo " +
-				"ให้แก้ --user เป็น root หรือเปิด PermitRootLogin บนเครื่องปลายทางก่อน",
+			Title:    `Error: "ต้องให้คำสั่งรันเป็น root บน ... (ตรวจพบว่า login เป็น ...)"`,
+			Description: "เกิดเมื่อ SSH login ด้วย user อื่นที่ยังไม่ได้ยกระดับสิทธิ์เป็น root " +
+				"ให้เพิ่ม --sudo-password ถ้า sudo ของเครื่องนั้นต้องใช้รหัสผ่าน หรือเตรียม sudoers ให้เป็น NOPASSWD",
 			Commands: []string{
-				`# ผิด: --user=ubuntu (ไม่ใช่ root)`,
+				`# ผิด: login เป็น user ธรรมดา แต่ยังไม่ให้ sudo password`,
 				`mariadb-installer.exe --apply --host=10.0.0.10 --user=ubuntu --key="C:\keys\id_rsa"`,
 				``,
-				`# ถูก: ใช้ --user=root`,
-				`mariadb-installer.exe --apply --host=10.0.0.10 --user=root --key="C:\keys\id_rsa"`,
+				`# ถูก: login เป็น user ธรรมดาแล้วส่ง sudo password`,
+				`mariadb-installer.exe --apply --host=10.0.0.10 --user=ubuntu --key="C:\keys\id_rsa" --sudo-password="sudo-pass"`,
 			},
 		},
 		{

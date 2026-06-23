@@ -30,6 +30,14 @@ func singleHostExamples() []Example {
 			},
 		},
 		{
+			Category:    CategorySingleHost,
+			Title:       "SSH เป็น user อื่น แล้ว sudo ต่อ",
+			Description: "ใช้เมื่อเครื่องปลายทางปิด root SSH แต่ user ที่ล็อกอินเข้าไปมีสิทธิ์ sudo หรือรู้ sudo password ของ root",
+			Commands: []string{
+				`mariadb-installer.exe --apply --host=10.0.0.10 --user=mrit --password=ssh-pass --sudo-password=sudo-pass`,
+			},
+		},
+		{
 			Category: CategorySingleHost,
 			Title:    "เครื่องปลายทางใช้ SSH port ไม่ใช่ 22",
 			Description: "บางเครื่องเปลี่ยน SSH port เพื่อความปลอดภัย (เช่น cloud VM ที่ตั้ง custom port) " +

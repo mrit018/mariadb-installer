@@ -8,6 +8,7 @@
 //	  "user": "root",
 //	  "auth": "key",
 //	  "key_path": "C:\\Users\\me\\.ssh\\id_rsa",
+//	  "sudo_password": "optional-if-non-root-login-needs-sudo",
 //	  "hosts": [
 //	    { "name": "db1", "address": "10.0.0.11" },
 //	    { "name": "db2", "address": "10.0.0.12" }
@@ -33,12 +34,13 @@ type HostEntry struct {
 
 // Config คือเนื้อหาทั้งไฟล์ config สำหรับติดตั้งหลายเครื่อง
 type Config struct {
-	ClusterName string      `json:"cluster_name,omitempty"` // ใส่เมื่อต้องการตั้งเป็น Galera cluster
-	User        string      `json:"user"`
-	Auth        string      `json:"auth"` // "key" หรือ "password"
-	KeyPath     string      `json:"key_path,omitempty"`
-	Password    string      `json:"password,omitempty"`
-	Hosts       []HostEntry `json:"hosts"`
+	ClusterName  string      `json:"cluster_name,omitempty"` // ใส่เมื่อต้องการตั้งเป็น Galera cluster
+	User         string      `json:"user"`
+	Auth         string      `json:"auth"` // "key" หรือ "password"
+	KeyPath      string      `json:"key_path,omitempty"`
+	Password     string      `json:"password,omitempty"`
+	SudoPassword string      `json:"sudo_password,omitempty"`
+	Hosts        []HostEntry `json:"hosts"`
 }
 
 // Load อ่านและ parse ไฟล์ config จาก path ที่ระบุ

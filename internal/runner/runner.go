@@ -26,12 +26,21 @@ type Runner struct {
 	HostLabel string
 
 	currentStep string
+	ConfirmFunc func(prompt string) bool
 }
 
 // New สร้าง Runner สำหรับ host หนึ่งเครื่อง
 // ssh เป็น nil ได้ถ้า dryRun == true และยังไม่ได้เชื่อมต่อจริง (เช่นดู plan ก่อนโดยไม่ใส่ credential)
 func New(dryRun, verbose bool, ssh *sshclient.Client, hostLabel string) *Runner {
-	return &Runner{DryRun: dryRun, Verbose: verbose, ssh: ssh, HostLabel: hostLabel}
+	return &Runner{
+		DryRun:    dryRun,
+		Verbose:   verbose,
+		ssh:       ssh,
+		HostLabel: hostLabel,
+		ConfirmFunc: func(prompt string) bool {
+			return defaultConfirm(hostLabel, prompt)
+		},
+	}
 }
 
 // SetStep ตั้งชื่อ step ปัจจุบันสำหรับแสดงผลใน log
@@ -112,7 +121,14 @@ func (r *Runner) Confirm(prompt string) bool {
 		r.logf("[DRY-RUN] (จะถาม) %s -> สมมติว่าตอบ yes", prompt)
 		return true
 	}
-	fmt.Printf("    [%s] %s [y/N]: ", r.HostLabel, prompt)
+	if r.ConfirmFunc != nil {
+		return r.ConfirmFunc(prompt)
+	}
+	return defaultConfirm(r.HostLabel, prompt)
+}
+
+func defaultConfirm(hostLabel, prompt string) bool {
+	fmt.Printf("    [%s] %s [y/N]: ", hostLabel, prompt)
 	var line string
 	fmt.Scanln(&line)
 	line = strings.TrimSpace(strings.ToLower(line))

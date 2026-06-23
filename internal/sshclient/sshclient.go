@@ -2,6 +2,7 @@
 // เพื่อให้ runner.Runner สั่งคำสั่ง/เขียนไฟล์ระยะไกลได้ โดยไม่ต้องรันโปรแกรมนี้บน Linux เอง
 //
 // รองรับการ authenticate สองแบบ: private key (.pem ในรูปแบบ OpenSSH) และ password
+// ถ้าล็อกอินด้วย user ที่ไม่ใช่ root ระบบจะยกระดับคำสั่งผ่าน sudo อัตโนมัติ
 package sshclient
 
 import (
@@ -31,6 +32,7 @@ type Config struct {
 	KeyPath       string // path ไปยัง private key file (.pem) ใช้เมื่อ AuthMethod == AuthKey
 	KeyPassphrase string // ถ้า private key ถูกเข้ารหัสด้วย passphrase
 	Password      string // ใช้เมื่อ AuthMethod == AuthPassword
+	SudoPassword  string // password สำหรับ sudo เมื่อ login ด้วย user อื่นที่ไม่ใช่ root
 	// HostKeyCheck ถ้า true จะตรวจ host key กับ known_hosts (ปลอดภัยกว่า)
 	// ถ้า false จะข้ามการตรวจ (สะดวกสำหรับ VM ที่เพิ่งสร้าง แต่เสี่ยง MITM)
 	HostKeyCheck   bool
@@ -155,6 +157,13 @@ func (c *Client) Run(cmd string) (CommandResult, error) {
 	}
 	defer session.Close()
 
+	if c.cfg.User != "root" {
+		cmd = sudoShellCommand(cmd, c.cfg.SudoPassword != "")
+		if c.cfg.SudoPassword != "" {
+			session.Stdin = bytes.NewReader([]byte(c.cfg.SudoPassword + "\n"))
+		}
+	}
+
 	var stdoutBuf, stderrBuf bytes.Buffer
 	session.Stdout = &stdoutBuf
 	session.Stderr = &stderrBuf
@@ -179,6 +188,13 @@ func (c *Client) Run(cmd string) (CommandResult, error) {
 	}
 
 	return result, nil
+}
+
+func sudoShellCommand(cmd string, usePassword bool) string {
+	if usePassword {
+		return fmt.Sprintf("sudo -S -p '' -H sh -lc %s", shellQuote(cmd))
+	}
+	return fmt.Sprintf("sudo -n -H sh -lc %s", shellQuote(cmd))
 }
 
 func trimOutput(b []byte) string {

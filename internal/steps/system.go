@@ -114,8 +114,8 @@ func EnsureRoot(r *runner.Runner) error {
 		return fmt.Errorf("ตรวจสิทธิ์ผู้ใช้บน %s ไม่สำเร็จ: %w", r.HostLabel, err)
 	}
 	if whoami != "root" {
-		return fmt.Errorf("ต้อง SSH login เป็น root บน %s (ตรวจพบว่า login เป็น %q) "+
-			"เนื่องจากต้องแก้ไฟล์ระบบและติดตั้งแพ็กเกจ", r.HostLabel, whoami)
+		return fmt.Errorf("ต้องให้คำสั่งรันเป็น root บน %s (ตรวจพบว่า login เป็น %q) "+
+			"ถ้า SSH login ด้วย user อื่น ให้ตั้ง sudo หรือใช้ --sudo-password เพื่อยกระดับสิทธิ์", r.HostLabel, whoami)
 	}
 	return nil
 }
