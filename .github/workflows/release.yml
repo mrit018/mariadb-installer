@@ -28,9 +28,17 @@ jobs:
           $env:GOCACHE = Join-Path $env:GITHUB_WORKSPACE ".gocache"
           go build -mod=vendor -o dist/mariadb-installer.exe .
 
+      - name: Verify release asset
+        shell: pwsh
+        run: |
+          if (-not (Test-Path dist/mariadb-installer.exe)) {
+            throw "dist/mariadb-installer.exe was not created"
+          }
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/mariadb-installer.exe
+          fail_on_unmatched_files: true
           generate_release_notes: true
           make_latest: true
