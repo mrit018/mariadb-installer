@@ -1,0 +1,1000 @@
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+export TERM="xterm-color"
+grep '^NAME=' /etc/os-release | cut -d'"' -f2
+grep '^VERSION_ID=' /etc/os-release | cut -d'"' -f2
+uname -m
+uname -a
+echo $SSH_CLIENT | awk '{ print $1}'
+/etc/yum.conf | grep keepcache=0
+timedatectl | awk '/Time zone:/ {print $3}'
+firewall-cmd --zone=trusted --add-port=33128/tcp --permanent
+firewall-cmd --zone=public --add-port=33128/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3306/tcp --permanent
+firewall-cmd --zone=public --add-port=3306/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4567/tcp --permanent
+firewall-cmd --zone=public --add-port=4567/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4444/tcp --permanent
+firewall-cmd --zone=public --add-port=4444/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3334/tcp --permanent
+firewall-cmd --zone=public --add-port=3334/tcp --permanent
+firewall-cmd  --reload
+iptables -F
+iptables -t nat -F
+ulimit -n
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+cat /etc/rc.local | grep iptables
+systemctl stop firewalld
+systemctl disable firewalld
+cat /etc/sysctl.conf | grep fs.suid_dumpable
+cat /etc/sysctl.conf | grep fs.aio-max-nr
+cat /etc/sysctl.conf | grep fs.file-max
+cat /etc/sysctl.conf | grep kernel.shmmni
+cat /etc/sysctl.conf | grep kernel.sem
+cat /etc/sysctl.conf | grep net.ipv4.ip_local_port_range
+cat /etc/sysctl.conf | grep net.core.rmem_default
+cat /etc/sysctl.conf | grep net.core.rmem_max
+cat /etc/sysctl.conf | grep net.core.wmem_default
+cat /etc/sysctl.conf | grep net.core.wmem_max
+cat /etc/sysctl.conf | grep net.ipv4.tcp_fin_timeout
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_time
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_recycle
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_reuse
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_intvl
+sysctl -p
+cat /proc/meminfo  | grep MemTotal | awk '{printf("%s\n",$2)}'
+grep -n 'vm.nr_hugepages' /etc/sysctl.conf | cut -d : -f 1
+sed -i '26s/.*/vm.nr_hugepages=51317/' /etc/sysctl.conf
+grep -n 'innodb_buffer_pool_size' /etc/my.cnf | cut -d : -f 1
+sed -i '35s/.*/innodb_buffer_pool_size = 64146M/' /etc/my.cnf
+free|grep Mem|awk '{print$2}'
+echo mem=131372552
+echo "131372552*1024"|bc
+grep Hugepagesize /proc/meminfo|awk '{print $2}'
+echo "134525493248*75/100"|bc
+echo "134525493248/4096"|bc
+echo "kernel.shmmax = 100894119936"
+echo "kernel.shmall = 32843138"
+grep -n 'kernel.shmmax' /etc/sysctl.conf | cut -d : -f 1
+sed -i '27s/.*/kernel.shmmax=100894119936/' /etc/sysctl.conf
+grep -n 'kernel.shmall' /etc/sysctl.conf | cut -d : -f 1
+sed -i '28s/.*/kernel.shmall=32843138/' /etc/sysctl.conf
+sysctl -p
+sysctl -w net.ipv4.route.flush=1
+pkill -15 yum
+pkill -15 yum-updatesd
+killall -9 yum
+killall -9 yum-updatesd
+dnf clean all
+rm -fr /var/cache/dnf/* 
+rpm -qa | grep psmisc
+rpm -qa | grep wget
+rpm -qa | grep epel-release
+yum --disablerepo=epel,percona-release* -y update
+echo $?
+rpm -qa | grep crudini
+setenforce 0
+echo "SELINUX=disabled" >  /etc/sysconfig/selinux
+echo "SELINUXTYPE=targeted" >>  /etc/sysconfig/selinux
+iptables -f
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 rsync
+killall -9 nc
+killall -9 socat
+killall -9 xtrabackup
+killall -9 wsrep_sst_xtrabackup
+killall -9 wsrep_sst_xtrabackup-v2
+killall -9 xbstream
+userdel mysql
+useradd mysql
+rm -f /var/lock/subsys/mysql
+rm -fr /var/lib/mysql/.sst
+rm -f /etc/yum.repos.d/mariadb.repo
+export TMP=/tmp
+export TMPDIR=/tmp
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mariadb | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MariaDB | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+shopt -s extglob
+rm -f /var/lib/mysql/!(*.err)
+rm -f /etc/init.d/mysql*
+rm -f /var/log/mysqld.log
+rm -fr /var/lib/mysql
+cat /etc/sysctl.conf | grep vm.hugetlb_shm_group
+cat /etc/default/grub | grep transparent_hugepage
+rpm -q -a | grep mariadb-libs | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep percona |grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Percona-Server |   xargs rpm --erase --nodeps
+echo "[mariadb]" > /etc/yum.repos.d/mariadb.repo
+echo "name = MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "baseurl = http://yum.mariadb.org/12.1/rhel10-amd64" >> /etc/yum.repos.d/mariadb.repo
+echo "module_hotfixes=1" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgcheck=0" >> /etc/yum.repos.d/mariadb.repo
+yum makecache
+echo "[xtrabackup]" > /etc/my.cnf
+echo "datadir=/var/lib/mysql" >> /etc/my.cnf
+echo "[client]">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[mysqld]">>/etc/my.cnf
+echo "large-pages">>/etc/my.cnf
+echo "table_open_cache=4000">>/etc/my.cnf
+echo "table_definition_cache=4000">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "datadir=/var/lib/mysql">>/etc/my.cnf
+echo "tmpdir=/tmp">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "skip-external-locking">>/etc/my.cnf
+echo "default_storage_engine=InnoDB">>/etc/my.cnf
+echo "key_buffer_size = 12829M">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "sort_buffer_size = 1M">>/etc/my.cnf
+echo "read_buffer_size = 1M">>/etc/my.cnf
+echo "read_rnd_buffer_size = 1M">>/etc/my.cnf
+echo "myisam_sort_buffer_size = 256M">>/etc/my.cnf
+echo "thread_cache_size = 8">>/etc/my.cnf
+echo "query_cache_size = 0">>/etc/my.cnf
+echo "character-set-server=tis620">>/etc/my.cnf
+echo "skip-name-resolve">>/etc/my.cnf
+echo "innodb_file_per_table">>/etc/my.cnf
+echo "skip-character-set-client-handshake">>/etc/my.cnf
+echo "init_connect = 'SET NAMES tis620'">>/etc/my.cnf
+echo "max_heap_table_size = 6415M">>/etc/my.cnf
+echo "innodb_data_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_data_file_path = ibdata1:100M:autoextend">>/etc/my.cnf
+echo "innodb_log_files_in_group=2">>/etc/my.cnf
+echo "innodb_log_group_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_buffer_pool_size = 64146M">>/etc/my.cnf
+echo "innodb_read_io_threads=16">>/etc/my.cnf
+echo "innodb_write_io_threads=16">>/etc/my.cnf
+echo "innodb_stats_on_metadata=0">>/etc/my.cnf
+echo "innodb_thread_concurrency = 64">>/etc/my.cnf
+echo "innodb_log_file_size = 4G">>/etc/my.cnf
+echo "innodb_log_buffer_size = 32M">>/etc/my.cnf
+echo "innodb_flush_log_at_trx_commit = 2">>/etc/my.cnf
+echo "innodb_flush_log_at_timeout=1800">>/etc/my.cnf
+echo "innodb_lock_wait_timeout = 50">>/etc/my.cnf
+echo "innodb_doublewrite=1">>/etc/my.cnf
+echo "innodb_open_files = 30000">>/etc/my.cnf
+echo "slave_compressed_protocol=1">>/etc/my.cnf
+echo "net_write_timeout=600">>/etc/my.cnf
+echo "net_read_timeout=600">>/etc/my.cnf
+echo "connect_timeout=60">>/etc/my.cnf
+echo "wait_timeout=300">>/etc/my.cnf
+echo 'sql-mode="NO_ENGINE_SUBSTITUTION"'>>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT">>/etc/my.cnf
+echo "join_buffer_size = 2M">>/etc/my.cnf
+echo "concurrent_insert = 2">>/etc/my.cnf
+echo "max_connections=1000">>/etc/my.cnf
+echo "open_files_limit=100000">>/etc/my.cnf
+echo "table-open-cache-instances = 32">>/etc/my.cnf
+echo "server-id = 1">>/etc/my.cnf
+echo "log-bin=/var/lib/mysql/mysql-bin.log">>/etc/my.cnf
+echo "#disable-log-bin">>/etc/my.cnf
+echo "log_error = /var/log/mysqld.log">>/etc/my.cnf
+echo "bind-address = 0.0.0.0">>/etc/my.cnf
+echo "log_bin_trust_function_creators=1">>/etc/my.cnf
+echo "expire_logs_days = 14">>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT_NO_FSYNC">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct=90">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct_lwm=10">>/etc/my.cnf
+echo "innodb_lru_scan_depth=10K">>/etc/my.cnf
+echo "innodb_page_cleaners=24">>/etc/my.cnf
+echo "#innodb_buffer_pool_instances =24">>/etc/my.cnf
+echo "innodb_use_native_aio=1">>/etc/my.cnf
+echo "innodb_stats_persistent = 1">>/etc/my.cnf
+echo "innodb_adaptive_flushing = 1">>/etc/my.cnf
+echo "innodb_flush_neighbors = 0">>/etc/my.cnf
+echo "innodb_purge_threads=4">>/etc/my.cnf
+echo "innodb_adaptive_hash_index=0">>/etc/my.cnf
+echo "max_prepared_stmt_count=1000000">>/etc/my.cnf
+echo "innodb_max_purge_lag_delay = 300000">>/etc/my.cnf
+echo "innodb_max_purge_lag = 10M">>/etc/my.cnf
+echo "#event_scheduler=0">>/etc/my.cnf
+echo "[mysqldump]">>/etc/my.cnf
+echo "quick">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "allow-keywords">>/etc/my.cnf
+echo "[mysql]">>/etc/my.cnf
+echo "no-auto-rehash">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[isamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[myisamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[mysqlhotcopy]">>/etc/my.cnf
+echo "interactive-timeout">>/etc/my.cnf
+dnf makecache
+echo $?
+rpm -qa | grep percona-release
+dnf -y install galera-4
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+export TERM="xterm-color"
+grep '^NAME=' /etc/os-release | cut -d'"' -f2
+grep '^VERSION_ID=' /etc/os-release | cut -d'"' -f2
+uname -m
+uname -a
+echo $SSH_CLIENT | awk '{ print $1}'
+/etc/yum.conf | grep keepcache=0
+timedatectl | awk '/Time zone:/ {print $3}'
+firewall-cmd --zone=trusted --add-port=33128/tcp --permanent
+firewall-cmd --zone=public --add-port=33128/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3306/tcp --permanent
+firewall-cmd --zone=public --add-port=3306/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4567/tcp --permanent
+firewall-cmd --zone=public --add-port=4567/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4444/tcp --permanent
+firewall-cmd --zone=public --add-port=4444/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3334/tcp --permanent
+firewall-cmd --zone=public --add-port=3334/tcp --permanent
+firewall-cmd  --reload
+iptables -F
+iptables -t nat -F
+ulimit -n
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+cat /etc/rc.local | grep iptables
+systemctl stop firewalld
+systemctl disable firewalld
+cat /etc/sysctl.conf | grep fs.suid_dumpable
+cat /etc/sysctl.conf | grep fs.aio-max-nr
+cat /etc/sysctl.conf | grep fs.file-max
+cat /etc/sysctl.conf | grep kernel.shmmni
+cat /etc/sysctl.conf | grep kernel.sem
+cat /etc/sysctl.conf | grep net.ipv4.ip_local_port_range
+cat /etc/sysctl.conf | grep net.core.rmem_default
+cat /etc/sysctl.conf | grep net.core.rmem_max
+cat /etc/sysctl.conf | grep net.core.wmem_default
+cat /etc/sysctl.conf | grep net.core.wmem_max
+cat /etc/sysctl.conf | grep net.ipv4.tcp_fin_timeout
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_time
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_recycle
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_reuse
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_intvl
+sysctl -p
+cat /proc/meminfo  | grep MemTotal | awk '{printf("%s\n",$2)}'
+grep -n 'vm.nr_hugepages' /etc/sysctl.conf | cut -d : -f 1
+sed -i '26s/.*/vm.nr_hugepages=51317/' /etc/sysctl.conf
+grep -n 'innodb_buffer_pool_size' /etc/my.cnf | cut -d : -f 1
+sed -i '35s/.*/innodb_buffer_pool_size = 64146M/' /etc/my.cnf
+free|grep Mem|awk '{print$2}'
+echo mem=131372552
+echo "131372552*1024"|bc
+grep Hugepagesize /proc/meminfo|awk '{print $2}'
+echo "134525493248*75/100"|bc
+echo "134525493248/4096"|bc
+echo "kernel.shmmax = 100894119936"
+echo "kernel.shmall = 32843138"
+grep -n 'kernel.shmmax' /etc/sysctl.conf | cut -d : -f 1
+sed -i '27s/.*/kernel.shmmax=100894119936/' /etc/sysctl.conf
+grep -n 'kernel.shmall' /etc/sysctl.conf | cut -d : -f 1
+sed -i '28s/.*/kernel.shmall=32843138/' /etc/sysctl.conf
+sysctl -p
+sysctl -w net.ipv4.route.flush=1
+pkill -15 yum
+pkill -15 yum-updatesd
+killall -9 yum
+killall -9 yum-updatesd
+dnf clean all
+rm -fr /var/cache/dnf/* 
+rpm -qa | grep psmisc
+rpm -qa | grep wget
+rpm -qa | grep epel-release
+yum --disablerepo=epel,percona-release* -y update
+echo $?
+rpm -qa | grep crudini
+setenforce 0
+echo "SELINUX=disabled" >  /etc/sysconfig/selinux
+echo "SELINUXTYPE=targeted" >>  /etc/sysconfig/selinux
+iptables -f
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 rsync
+killall -9 nc
+killall -9 socat
+killall -9 xtrabackup
+killall -9 wsrep_sst_xtrabackup
+killall -9 wsrep_sst_xtrabackup-v2
+killall -9 xbstream
+userdel mysql
+useradd mysql
+rm -f /var/lock/subsys/mysql
+rm -fr /var/lib/mysql/.sst
+rm -f /etc/yum.repos.d/mariadb.repo
+export TMP=/tmp
+export TMPDIR=/tmp
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mariadb | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MariaDB | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+shopt -s extglob
+rm -f /var/lib/mysql/!(*.err)
+rm -f /etc/init.d/mysql*
+rm -f /var/log/mysqld.log
+rm -fr /var/lib/mysql
+cat /etc/sysctl.conf | grep vm.hugetlb_shm_group
+cat /etc/default/grub | grep transparent_hugepage
+rpm -q -a | grep mariadb-libs | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep percona |grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Percona-Server |   xargs rpm --erase --nodeps
+echo "[mariadb]" > /etc/yum.repos.d/mariadb.repo
+echo "name = MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "baseurl = http://yum.mariadb.org/12.1/rhel10-amd64" >> /etc/yum.repos.d/mariadb.repo
+echo "module_hotfixes=1" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgcheck=0" >> /etc/yum.repos.d/mariadb.repo
+yum makecache
+echo "[xtrabackup]" > /etc/my.cnf
+echo "datadir=/var/lib/mysql" >> /etc/my.cnf
+echo "[client]">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[mysqld]">>/etc/my.cnf
+echo "large-pages">>/etc/my.cnf
+echo "table_open_cache=4000">>/etc/my.cnf
+echo "table_definition_cache=4000">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "datadir=/var/lib/mysql">>/etc/my.cnf
+echo "tmpdir=/tmp">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "skip-external-locking">>/etc/my.cnf
+echo "default_storage_engine=InnoDB">>/etc/my.cnf
+echo "key_buffer_size = 12829M">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "sort_buffer_size = 1M">>/etc/my.cnf
+echo "read_buffer_size = 1M">>/etc/my.cnf
+echo "read_rnd_buffer_size = 1M">>/etc/my.cnf
+echo "myisam_sort_buffer_size = 256M">>/etc/my.cnf
+echo "thread_cache_size = 8">>/etc/my.cnf
+echo "query_cache_size = 0">>/etc/my.cnf
+echo "character-set-server=tis620">>/etc/my.cnf
+echo "skip-name-resolve">>/etc/my.cnf
+echo "innodb_file_per_table">>/etc/my.cnf
+echo "skip-character-set-client-handshake">>/etc/my.cnf
+echo "init_connect = 'SET NAMES tis620'">>/etc/my.cnf
+echo "max_heap_table_size = 6415M">>/etc/my.cnf
+echo "innodb_data_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_data_file_path = ibdata1:100M:autoextend">>/etc/my.cnf
+echo "innodb_log_files_in_group=2">>/etc/my.cnf
+echo "innodb_log_group_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_buffer_pool_size = 64146M">>/etc/my.cnf
+echo "innodb_read_io_threads=16">>/etc/my.cnf
+echo "innodb_write_io_threads=16">>/etc/my.cnf
+echo "innodb_stats_on_metadata=0">>/etc/my.cnf
+echo "innodb_thread_concurrency = 64">>/etc/my.cnf
+echo "innodb_log_file_size = 4G">>/etc/my.cnf
+echo "innodb_log_buffer_size = 32M">>/etc/my.cnf
+echo "innodb_flush_log_at_trx_commit = 2">>/etc/my.cnf
+echo "innodb_flush_log_at_timeout=1800">>/etc/my.cnf
+echo "innodb_lock_wait_timeout = 50">>/etc/my.cnf
+echo "innodb_doublewrite=1">>/etc/my.cnf
+echo "innodb_open_files = 30000">>/etc/my.cnf
+echo "slave_compressed_protocol=1">>/etc/my.cnf
+echo "net_write_timeout=600">>/etc/my.cnf
+echo "net_read_timeout=600">>/etc/my.cnf
+echo "connect_timeout=60">>/etc/my.cnf
+echo "wait_timeout=300">>/etc/my.cnf
+echo 'sql-mode="NO_ENGINE_SUBSTITUTION"'>>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT">>/etc/my.cnf
+echo "join_buffer_size = 2M">>/etc/my.cnf
+echo "concurrent_insert = 2">>/etc/my.cnf
+echo "max_connections=1000">>/etc/my.cnf
+echo "open_files_limit=100000">>/etc/my.cnf
+echo "table-open-cache-instances = 32">>/etc/my.cnf
+echo "server-id = 1">>/etc/my.cnf
+echo "log-bin=/var/lib/mysql/mysql-bin.log">>/etc/my.cnf
+echo "#disable-log-bin">>/etc/my.cnf
+echo "log_error = /var/log/mysqld.log">>/etc/my.cnf
+echo "bind-address = 0.0.0.0">>/etc/my.cnf
+echo "log_bin_trust_function_creators=1">>/etc/my.cnf
+echo "expire_logs_days = 14">>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT_NO_FSYNC">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct=90">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct_lwm=10">>/etc/my.cnf
+echo "innodb_lru_scan_depth=10K">>/etc/my.cnf
+echo "innodb_page_cleaners=24">>/etc/my.cnf
+echo "#innodb_buffer_pool_instances =24">>/etc/my.cnf
+echo "innodb_use_native_aio=1">>/etc/my.cnf
+echo "innodb_stats_persistent = 1">>/etc/my.cnf
+echo "innodb_adaptive_flushing = 1">>/etc/my.cnf
+echo "innodb_flush_neighbors = 0">>/etc/my.cnf
+echo "innodb_purge_threads=4">>/etc/my.cnf
+echo "innodb_adaptive_hash_index=0">>/etc/my.cnf
+echo "max_prepared_stmt_count=1000000">>/etc/my.cnf
+echo "innodb_max_purge_lag_delay = 300000">>/etc/my.cnf
+echo "innodb_max_purge_lag = 10M">>/etc/my.cnf
+echo "#event_scheduler=0">>/etc/my.cnf
+echo "[mysqldump]">>/etc/my.cnf
+echo "quick">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "allow-keywords">>/etc/my.cnf
+echo "[mysql]">>/etc/my.cnf
+echo "no-auto-rehash">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[isamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[myisamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[mysqlhotcopy]">>/etc/my.cnf
+echo "interactive-timeout">>/etc/my.cnf
+dnf makecache
+echo $?
+rpm -qa | grep percona-release
+dnf -y install galera-4
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+export TERM="xterm-color"
+grep '^NAME=' /etc/os-release | cut -d'"' -f2
+grep '^VERSION_ID=' /etc/os-release | cut -d'"' -f2
+uname -m
+uname -a
+echo $SSH_CLIENT | awk '{ print $1}'
+/etc/yum.conf | grep keepcache=0
+timedatectl | awk '/Time zone:/ {print $3}'
+firewall-cmd --zone=trusted --add-port=33128/tcp --permanent
+firewall-cmd --zone=public --add-port=33128/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3306/tcp --permanent
+firewall-cmd --zone=public --add-port=3306/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4567/tcp --permanent
+firewall-cmd --zone=public --add-port=4567/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4444/tcp --permanent
+firewall-cmd --zone=public --add-port=4444/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3334/tcp --permanent
+firewall-cmd --zone=public --add-port=3334/tcp --permanent
+firewall-cmd  --reload
+iptables -F
+iptables -t nat -F
+ulimit -n
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+cat /etc/rc.local | grep iptables
+systemctl stop firewalld
+systemctl disable firewalld
+cat /etc/sysctl.conf | grep fs.suid_dumpable
+cat /etc/sysctl.conf | grep fs.aio-max-nr
+cat /etc/sysctl.conf | grep fs.file-max
+cat /etc/sysctl.conf | grep kernel.shmmni
+cat /etc/sysctl.conf | grep kernel.sem
+cat /etc/sysctl.conf | grep net.ipv4.ip_local_port_range
+cat /etc/sysctl.conf | grep net.core.rmem_default
+cat /etc/sysctl.conf | grep net.core.rmem_max
+cat /etc/sysctl.conf | grep net.core.wmem_default
+cat /etc/sysctl.conf | grep net.core.wmem_max
+cat /etc/sysctl.conf | grep net.ipv4.tcp_fin_timeout
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_time
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_recycle
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_reuse
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_intvl
+sysctl -p
+cat /proc/meminfo  | grep MemTotal | awk '{printf("%s\n",$2)}'
+grep -n 'vm.nr_hugepages' /etc/sysctl.conf | cut -d : -f 1
+sed -i '26s/.*/vm.nr_hugepages=51317/' /etc/sysctl.conf
+grep -n 'innodb_buffer_pool_size' /etc/my.cnf | cut -d : -f 1
+sed -i '35s/.*/innodb_buffer_pool_size = 64146M/' /etc/my.cnf
+free|grep Mem|awk '{print$2}'
+echo mem=131372552
+echo "131372552*1024"|bc
+grep Hugepagesize /proc/meminfo|awk '{print $2}'
+echo "134525493248*75/100"|bc
+echo "134525493248/4096"|bc
+echo "kernel.shmmax = 100894119936"
+echo "kernel.shmall = 32843138"
+grep -n 'kernel.shmmax' /etc/sysctl.conf | cut -d : -f 1
+sed -i '27s/.*/kernel.shmmax=100894119936/' /etc/sysctl.conf
+grep -n 'kernel.shmall' /etc/sysctl.conf | cut -d : -f 1
+sed -i '28s/.*/kernel.shmall=32843138/' /etc/sysctl.conf
+sysctl -p
+sysctl -w net.ipv4.route.flush=1
+pkill -15 yum
+pkill -15 yum-updatesd
+killall -9 yum
+killall -9 yum-updatesd
+dnf clean all
+rm -fr /var/cache/dnf/* 
+rpm -qa | grep psmisc
+rpm -qa | grep wget
+rpm -qa | grep epel-release
+yum --disablerepo=epel,percona-release* -y update
+echo $?
+rpm -qa | grep crudini
+setenforce 0
+echo "SELINUX=disabled" >  /etc/sysconfig/selinux
+echo "SELINUXTYPE=targeted" >>  /etc/sysconfig/selinux
+iptables -f
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 rsync
+killall -9 nc
+killall -9 socat
+killall -9 xtrabackup
+killall -9 wsrep_sst_xtrabackup
+killall -9 wsrep_sst_xtrabackup-v2
+killall -9 xbstream
+userdel mysql
+useradd mysql
+rm -f /var/lock/subsys/mysql
+rm -fr /var/lib/mysql/.sst
+rm -f /etc/yum.repos.d/mariadb.repo
+export TMP=/tmp
+export TMPDIR=/tmp
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mariadb | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MariaDB | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+shopt -s extglob
+rm -f /var/lib/mysql/!(*.err)
+rm -f /etc/init.d/mysql*
+rm -f /var/log/mysqld.log
+rm -fr /var/lib/mysql
+cat /etc/sysctl.conf | grep vm.hugetlb_shm_group
+cat /etc/default/grub | grep transparent_hugepage
+rpm -q -a | grep mariadb-libs | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep percona |grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Percona-Server |   xargs rpm --erase --nodeps
+echo "[mariadb]" > /etc/yum.repos.d/mariadb.repo
+echo "name = MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "baseurl = http://yum.mariadb.org/12.1/rhel9-amd64" >> /etc/yum.repos.d/mariadb.repo
+echo "module_hotfixes=1" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgcheck=0" >> /etc/yum.repos.d/mariadb.repo
+yum makecache
+echo "[xtrabackup]" > /etc/my.cnf
+echo "datadir=/var/lib/mysql" >> /etc/my.cnf
+echo "[client]">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[mysqld]">>/etc/my.cnf
+echo "large-pages">>/etc/my.cnf
+echo "table_open_cache=4000">>/etc/my.cnf
+echo "table_definition_cache=4000">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "datadir=/var/lib/mysql">>/etc/my.cnf
+echo "tmpdir=/tmp">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "skip-external-locking">>/etc/my.cnf
+echo "default_storage_engine=InnoDB">>/etc/my.cnf
+echo "key_buffer_size = 12829M">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "sort_buffer_size = 1M">>/etc/my.cnf
+echo "read_buffer_size = 1M">>/etc/my.cnf
+echo "read_rnd_buffer_size = 1M">>/etc/my.cnf
+echo "myisam_sort_buffer_size = 256M">>/etc/my.cnf
+echo "thread_cache_size = 8">>/etc/my.cnf
+echo "query_cache_size = 0">>/etc/my.cnf
+echo "character-set-server=tis620">>/etc/my.cnf
+echo "skip-name-resolve">>/etc/my.cnf
+echo "innodb_file_per_table">>/etc/my.cnf
+echo "skip-character-set-client-handshake">>/etc/my.cnf
+echo "init_connect = 'SET NAMES tis620'">>/etc/my.cnf
+echo "max_heap_table_size = 6415M">>/etc/my.cnf
+echo "innodb_data_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_data_file_path = ibdata1:100M:autoextend">>/etc/my.cnf
+echo "innodb_log_files_in_group=2">>/etc/my.cnf
+echo "innodb_log_group_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_buffer_pool_size = 64146M">>/etc/my.cnf
+echo "innodb_read_io_threads=16">>/etc/my.cnf
+echo "innodb_write_io_threads=16">>/etc/my.cnf
+echo "innodb_stats_on_metadata=0">>/etc/my.cnf
+echo "innodb_thread_concurrency = 64">>/etc/my.cnf
+echo "innodb_log_file_size = 4G">>/etc/my.cnf
+echo "innodb_log_buffer_size = 32M">>/etc/my.cnf
+echo "innodb_flush_log_at_trx_commit = 2">>/etc/my.cnf
+echo "innodb_flush_log_at_timeout=1800">>/etc/my.cnf
+echo "innodb_lock_wait_timeout = 50">>/etc/my.cnf
+echo "innodb_doublewrite=1">>/etc/my.cnf
+echo "innodb_open_files = 30000">>/etc/my.cnf
+echo "slave_compressed_protocol=1">>/etc/my.cnf
+echo "net_write_timeout=600">>/etc/my.cnf
+echo "net_read_timeout=600">>/etc/my.cnf
+echo "connect_timeout=60">>/etc/my.cnf
+echo "wait_timeout=300">>/etc/my.cnf
+echo 'sql-mode="NO_ENGINE_SUBSTITUTION"'>>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT">>/etc/my.cnf
+echo "join_buffer_size = 2M">>/etc/my.cnf
+echo "concurrent_insert = 2">>/etc/my.cnf
+echo "max_connections=1000">>/etc/my.cnf
+echo "open_files_limit=100000">>/etc/my.cnf
+echo "table-open-cache-instances = 32">>/etc/my.cnf
+echo "server-id = 1">>/etc/my.cnf
+echo "log-bin=/var/lib/mysql/mysql-bin.log">>/etc/my.cnf
+echo "#disable-log-bin">>/etc/my.cnf
+echo "log_error = /var/log/mysqld.log">>/etc/my.cnf
+echo "bind-address = 0.0.0.0">>/etc/my.cnf
+echo "log_bin_trust_function_creators=1">>/etc/my.cnf
+echo "expire_logs_days = 14">>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT_NO_FSYNC">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct=90">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct_lwm=10">>/etc/my.cnf
+echo "innodb_lru_scan_depth=10K">>/etc/my.cnf
+echo "innodb_page_cleaners=24">>/etc/my.cnf
+echo "#innodb_buffer_pool_instances =24">>/etc/my.cnf
+echo "innodb_use_native_aio=1">>/etc/my.cnf
+echo "innodb_stats_persistent = 1">>/etc/my.cnf
+echo "innodb_adaptive_flushing = 1">>/etc/my.cnf
+echo "innodb_flush_neighbors = 0">>/etc/my.cnf
+echo "innodb_purge_threads=4">>/etc/my.cnf
+echo "innodb_adaptive_hash_index=0">>/etc/my.cnf
+echo "max_prepared_stmt_count=1000000">>/etc/my.cnf
+echo "innodb_max_purge_lag_delay = 300000">>/etc/my.cnf
+echo "innodb_max_purge_lag = 10M">>/etc/my.cnf
+echo "#event_scheduler=0">>/etc/my.cnf
+echo "[mysqldump]">>/etc/my.cnf
+echo "quick">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "allow-keywords">>/etc/my.cnf
+echo "[mysql]">>/etc/my.cnf
+echo "no-auto-rehash">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[isamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[myisamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[mysqlhotcopy]">>/etc/my.cnf
+echo "interactive-timeout">>/etc/my.cnf
+dnf makecache
+echo $?
+rpm -qa | grep percona-release
+dnf -y install galera-4
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+df -h
+cat /etc/os-release 
+curl -LsSO https://r.mariadb.com/downloads/mariadb_repo_setup
+echo "${checksum} mariadb_repo_setup" | sha256sum -c -
+chmod +x mariadb_repo_setup
+sudo ./mariadb_repo_setup
+cp /etc/yum.repos.d/mariadb.repo  /etc/yum.repos.d/mariadb.new
+cp /etc/yum.repos.d/mariadb.new  /etc/yum.repos.d/mariadb.repo
+mysql
+\
+cp /etc/yum.repos.d/mariadb.new  /etc/yum.repos.d/mariadb.repo
+nano /etc/yum.repos.d/mariadb.new
+cp /etc/yum.repos.d/mariadb.new  /etc/yum.repos.d/mariadb.repo
+yes
+cp /etc/yum.repos.d/mariadb.new  /etc/yum.repos.d/mariadb.repo
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB
+top
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB
+dnf -y install MariaDB-server MariaDB-client MariaDB
+mysql
+nano /etc/os-release 
+cp /etc/yum.repos.d/mariadb.new  /etc/yum.repos.d/mariadb.repo
+nano sudo nano /etc/selinux/config
+sudo nano /etc/selinux/config
+sudo reboot
+export TERM="xterm-color"
+grep '^NAME=' /etc/os-release | cut -d'"' -f2
+grep '^VERSION_ID=' /etc/os-release | cut -d'"' -f2
+uname -m
+uname -a
+echo $SSH_CLIENT | awk '{ print $1}'
+/etc/yum.conf | grep keepcache=0
+timedatectl | awk '/Time zone:/ {print $3}'
+firewall-cmd --zone=trusted --add-port=33128/tcp --permanent
+firewall-cmd --zone=public --add-port=33128/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3306/tcp --permanent
+firewall-cmd --zone=public --add-port=3306/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4567/tcp --permanent
+firewall-cmd --zone=public --add-port=4567/tcp --permanent
+firewall-cmd --zone=trusted --add-port=4444/tcp --permanent
+firewall-cmd --zone=public --add-port=4444/tcp --permanent
+firewall-cmd --zone=trusted --add-port=3334/tcp --permanent
+firewall-cmd --zone=public --add-port=3334/tcp --permanent
+firewall-cmd  --reload
+iptables -F
+iptables -t nat -F
+ulimit -n
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+cat /etc/rc.local | grep iptables
+systemctl stop firewalld
+systemctl disable firewalld
+cat /etc/sysctl.conf | grep fs.suid_dumpable
+cat /etc/sysctl.conf | grep fs.aio-max-nr
+cat /etc/sysctl.conf | grep fs.file-max
+cat /etc/sysctl.conf | grep kernel.shmmni
+cat /etc/sysctl.conf | grep kernel.sem
+cat /etc/sysctl.conf | grep net.ipv4.ip_local_port_range
+cat /etc/sysctl.conf | grep net.core.rmem_default
+cat /etc/sysctl.conf | grep net.core.rmem_max
+cat /etc/sysctl.conf | grep net.core.wmem_default
+cat /etc/sysctl.conf | grep net.core.wmem_max
+cat /etc/sysctl.conf | grep net.ipv4.tcp_fin_timeout
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_time
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_recycle
+cat /etc/sysctl.conf | grep net.ipv4.tcp_tw_reuse
+cat /etc/sysctl.conf | grep net.ipv4.tcp_keepalive_intvl
+sysctl -p
+cat /proc/meminfo  | grep MemTotal | awk '{printf("%s\n",$2)}'
+grep -n 'vm.nr_hugepages' /etc/sysctl.conf | cut -d : -f 1
+sed -i '26s/.*/vm.nr_hugepages=51317/' /etc/sysctl.conf
+grep -n 'innodb_buffer_pool_size' /etc/my.cnf | cut -d : -f 1
+sed -i '35s/.*/innodb_buffer_pool_size = 64146M/' /etc/my.cnf
+free|grep Mem|awk '{print$2}'
+echo mem=131372564
+echo "131372564*1024"|bc
+grep Hugepagesize /proc/meminfo|awk '{print $2}'
+echo "134525505536*75/100"|bc
+echo "134525505536/4096"|bc
+echo "kernel.shmmax = 100894129152"
+echo "kernel.shmall = 32843141"
+grep -n 'kernel.shmmax' /etc/sysctl.conf | cut -d : -f 1
+sed -i '27s/.*/kernel.shmmax=100894129152/' /etc/sysctl.conf
+grep -n 'kernel.shmall' /etc/sysctl.conf | cut -d : -f 1
+sed -i '28s/.*/kernel.shmall=32843141/' /etc/sysctl.conf
+sysctl -p
+sysctl -w net.ipv4.route.flush=1
+pkill -15 yum
+pkill -15 yum-updatesd
+killall -9 yum
+killall -9 yum-updatesd
+dnf clean all
+rm -fr /var/cache/dnf/* 
+rpm -qa | grep psmisc
+rpm -qa | grep wget
+rpm -qa | grep epel-release
+yum --disablerepo=epel,percona-release* -y update
+echo $?
+rpm -qa | grep crudini
+setenforce 0
+echo "SELINUX=disabled" >  /etc/sysconfig/selinux
+echo "SELINUXTYPE=targeted" >>  /etc/sysconfig/selinux
+iptables -f
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 mysqld_safe
+killall -9 mysqld
+killall -9 rsync
+killall -9 nc
+killall -9 socat
+killall -9 xtrabackup
+killall -9 wsrep_sst_xtrabackup
+killall -9 wsrep_sst_xtrabackup-v2
+killall -9 xbstream
+userdel mysql
+useradd mysql
+rm -f /var/lock/subsys/mysql
+rm -fr /var/lib/mysql/.sst
+rm -f /etc/yum.repos.d/mariadb.repo
+export TMP=/tmp
+export TMPDIR=/tmp
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep percona | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mariadb | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MariaDB | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+shopt -s extglob
+rm -f /var/lib/mysql/!(*.err)
+rm -f /etc/init.d/mysql*
+rm -f /var/log/mysqld.log
+rm -fr /var/lib/mysql
+cat /etc/sysctl.conf | grep vm.hugetlb_shm_group
+cat /etc/default/grub | grep transparent_hugepage
+rpm -q -a | grep mariadb-libs | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep Percona | grep -v '^perl' | grep -v '^mysql-libs' |  xargs rpm --erase --nodeps
+rpm -q -a | grep percona |grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep MySQL | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep mysql | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Galera | grep -v '^perl' | grep -v '^mysql-libs' | xargs rpm --erase --nodeps
+rpm -q -a | grep Percona-Server |   xargs rpm --erase --nodeps
+echo "[mariadb]" > /etc/yum.repos.d/mariadb.repo
+echo "name = MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "baseurl = http://yum.mariadb.org/12.1/rhel9-amd64" >> /etc/yum.repos.d/mariadb.repo
+echo "module_hotfixes=1" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB" >> /etc/yum.repos.d/mariadb.repo
+echo "gpgcheck=0" >> /etc/yum.repos.d/mariadb.repo
+yum makecache
+echo "[xtrabackup]" > /etc/my.cnf
+echo "datadir=/var/lib/mysql" >> /etc/my.cnf
+echo "[client]">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[mysqld]">>/etc/my.cnf
+echo "large-pages">>/etc/my.cnf
+echo "table_open_cache=4000">>/etc/my.cnf
+echo "table_definition_cache=4000">>/etc/my.cnf
+echo "port= 3306">>/etc/my.cnf
+echo "datadir=/var/lib/mysql">>/etc/my.cnf
+echo "tmpdir=/tmp">>/etc/my.cnf
+echo "socket= /var/lib/mysql/mysql.sock">>/etc/my.cnf
+echo "skip-external-locking">>/etc/my.cnf
+echo "default_storage_engine=InnoDB">>/etc/my.cnf
+echo "key_buffer_size = 12829M">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "sort_buffer_size = 1M">>/etc/my.cnf
+echo "read_buffer_size = 1M">>/etc/my.cnf
+echo "read_rnd_buffer_size = 1M">>/etc/my.cnf
+echo "myisam_sort_buffer_size = 256M">>/etc/my.cnf
+echo "thread_cache_size = 8">>/etc/my.cnf
+echo "query_cache_size = 0">>/etc/my.cnf
+echo "character-set-server=tis620">>/etc/my.cnf
+echo "skip-name-resolve">>/etc/my.cnf
+echo "innodb_file_per_table">>/etc/my.cnf
+echo "skip-character-set-client-handshake">>/etc/my.cnf
+echo "init_connect = 'SET NAMES tis620'">>/etc/my.cnf
+echo "max_heap_table_size = 6415M">>/etc/my.cnf
+echo "innodb_data_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_data_file_path = ibdata1:100M:autoextend">>/etc/my.cnf
+echo "innodb_log_files_in_group=2">>/etc/my.cnf
+echo "innodb_log_group_home_dir = /var/lib/mysql/">>/etc/my.cnf
+echo "innodb_buffer_pool_size = 64146M">>/etc/my.cnf
+echo "innodb_read_io_threads=16">>/etc/my.cnf
+echo "innodb_write_io_threads=16">>/etc/my.cnf
+echo "innodb_stats_on_metadata=0">>/etc/my.cnf
+echo "innodb_thread_concurrency = 64">>/etc/my.cnf
+echo "innodb_log_file_size = 4G">>/etc/my.cnf
+echo "innodb_log_buffer_size = 32M">>/etc/my.cnf
+echo "innodb_flush_log_at_trx_commit = 2">>/etc/my.cnf
+echo "innodb_flush_log_at_timeout=1800">>/etc/my.cnf
+echo "innodb_lock_wait_timeout = 50">>/etc/my.cnf
+echo "innodb_doublewrite=1">>/etc/my.cnf
+echo "innodb_open_files = 30000">>/etc/my.cnf
+echo "slave_compressed_protocol=1">>/etc/my.cnf
+echo "net_write_timeout=600">>/etc/my.cnf
+echo "net_read_timeout=600">>/etc/my.cnf
+echo "connect_timeout=60">>/etc/my.cnf
+echo "wait_timeout=300">>/etc/my.cnf
+echo 'sql-mode="NO_ENGINE_SUBSTITUTION"'>>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT">>/etc/my.cnf
+echo "join_buffer_size = 2M">>/etc/my.cnf
+echo "concurrent_insert = 2">>/etc/my.cnf
+echo "max_connections=1000">>/etc/my.cnf
+echo "open_files_limit=100000">>/etc/my.cnf
+echo "table-open-cache-instances = 32">>/etc/my.cnf
+echo "server-id = 1">>/etc/my.cnf
+echo "log-bin=/var/lib/mysql/mysql-bin.log">>/etc/my.cnf
+echo "#disable-log-bin">>/etc/my.cnf
+echo "log_error = /var/log/mysqld.log">>/etc/my.cnf
+echo "bind-address = 0.0.0.0">>/etc/my.cnf
+echo "log_bin_trust_function_creators=1">>/etc/my.cnf
+echo "expire_logs_days = 14">>/etc/my.cnf
+echo "innodb_flush_method=O_DIRECT_NO_FSYNC">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct=90">>/etc/my.cnf
+echo "innodb_max_dirty_pages_pct_lwm=10">>/etc/my.cnf
+echo "innodb_lru_scan_depth=10K">>/etc/my.cnf
+echo "innodb_page_cleaners=24">>/etc/my.cnf
+echo "#innodb_buffer_pool_instances =24">>/etc/my.cnf
+echo "innodb_use_native_aio=1">>/etc/my.cnf
+echo "innodb_stats_persistent = 1">>/etc/my.cnf
+echo "innodb_adaptive_flushing = 1">>/etc/my.cnf
+echo "innodb_flush_neighbors = 0">>/etc/my.cnf
+echo "innodb_purge_threads=4">>/etc/my.cnf
+echo "innodb_adaptive_hash_index=0">>/etc/my.cnf
+echo "max_prepared_stmt_count=1000000">>/etc/my.cnf
+echo "innodb_max_purge_lag_delay = 300000">>/etc/my.cnf
+echo "innodb_max_purge_lag = 10M">>/etc/my.cnf
+echo "#event_scheduler=0">>/etc/my.cnf
+echo "[mysqldump]">>/etc/my.cnf
+echo "quick">>/etc/my.cnf
+echo "max_allowed_packet = 512M">>/etc/my.cnf
+echo "allow-keywords">>/etc/my.cnf
+echo "[mysql]">>/etc/my.cnf
+echo "no-auto-rehash">>/etc/my.cnf
+echo "default-character-set=tis620">>/etc/my.cnf
+echo "[isamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[myisamchk]">>/etc/my.cnf
+echo "key_buffer = 128M">>/etc/my.cnf
+echo "sort_buffer_size = 128M">>/etc/my.cnf
+echo "read_buffer = 2M">>/etc/my.cnf
+echo "write_buffer = 2M">>/etc/my.cnf
+echo "[mysqlhotcopy]">>/etc/my.cnf
+echo "interactive-timeout">>/etc/my.cnf
+dnf makecache
+echo $?
+rpm -qa | grep percona-release
+dnf -y install galera-4
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
+dnf --disablerepo=AppStream --disablerepo=appstream -y install MariaDB-server MariaDB-client MariaDB-backup  
+echo $?
